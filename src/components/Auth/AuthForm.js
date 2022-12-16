@@ -16,30 +16,36 @@ const AuthForm = () => {
   const submitHandler = event => {
     event.preventDefault();
 
-    const url =
-      'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDfv6QwLoGaPAp-SOB6RZQ1HdCyZSBak1U';
     const enteredEmail = emailRef.current?.value;
     const enteredPassword = passwordRef.current?.value;
 
     setIsLoading(true);
+    let url;
 
     if (isLogin) {
+      url =
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDfv6QwLoGaPAp-SOB6RZQ1HdCyZSBak1U';
     } else {
-      fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({
-          email: enteredEmail,
-          password: enteredPassword,
-          returnSecureToken: true,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then(res => {
+      url =
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDfv6QwLoGaPAp-SOB6RZQ1HdCyZSBak1U';
+    }
+
+    fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        email: enteredEmail,
+        password: enteredPassword,
+        returnSecureToken: true,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => {
         setIsLoading(false);
 
         if (res.ok) {
-          console.log('Everything is excellent');
+          return res.json();
         } else {
           return res.json().then(data => {
             let errorMessage = 'Authentication failed!';
@@ -48,11 +54,16 @@ const AuthForm = () => {
               errorMessage = data.error.message;
             }
 
-            alert(errorMessage);
+            throw new Error(errorMessage);
           });
         }
+      })
+      .then(data => {
+        console.log(data);
+      })
+      .catch(err => {
+        alert(err.message);
       });
-    }
   };
 
   return (
