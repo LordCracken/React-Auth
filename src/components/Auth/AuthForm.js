@@ -3,7 +3,9 @@ import { useRef, useState } from 'react';
 import classes from './AuthForm.module.css';
 
 const AuthForm = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+
   const emailRef = useRef();
   const passwordRef = useRef();
 
@@ -19,6 +21,8 @@ const AuthForm = () => {
     const enteredEmail = emailRef.current?.value;
     const enteredPassword = passwordRef.current?.value;
 
+    setIsLoading(true);
+
     if (isLogin) {
     } else {
       fetch(url, {
@@ -32,11 +36,19 @@ const AuthForm = () => {
           'Content-Type': 'application/json',
         },
       }).then(res => {
+        setIsLoading(false);
+
         if (res.ok) {
           console.log('Everything is excellent');
         } else {
           return res.json().then(data => {
-            console.log(data);
+            let errorMessage = 'Authentication failed!';
+
+            if (data && data.error && data.error.message) {
+              errorMessage = data.error.message;
+            }
+
+            alert(errorMessage);
           });
         }
       });
@@ -56,7 +68,8 @@ const AuthForm = () => {
           <input type="password" id="password" required ref={passwordRef} />
         </div>
         <div className={classes.actions}>
-          <button>{isLogin ? 'Login' : 'Create Account'}</button>
+          {!isLoading && <button>{isLogin ? 'Login' : 'Create Account'}</button>}
+          {isLoading && <p>Sending request...</p>}
           <button type="button" className={classes.toggle} onClick={switchAuthModeHandler}>
             {isLogin ? 'Create new account' : 'Login with existing account'}
           </button>
