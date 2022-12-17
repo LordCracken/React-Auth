@@ -1,12 +1,13 @@
 import { useContext, useRef } from 'react';
+import { useHistory } from 'react-router-dom';
 
 import AuthContext from '../../store/auth-context';
 import classes from './ProfileForm.module.css';
 
 const ProfileForm = () => {
   const newPasswordRef = useRef();
-
   const authCtx = useContext(AuthContext);
+  const history = useHistory();
 
   const submitHandler = event => {
     event.preventDefault();
@@ -25,7 +26,7 @@ const ProfileForm = () => {
         'Content-Type': 'application/json',
       },
     }).then(_res => {
-      console.log('Success!');
+      history.replace('/');
     });
   };
 
